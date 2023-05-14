@@ -24,7 +24,7 @@ export OS_PASSWORD=admin
 Run the import:
 
 ```
-csv2opensearch --file=test.csv --host=https://localhost:9200 --index=test --batch=100 --rate=500
+csv2opensearch --csv=test.csv --host=https://localhost:9200 --index=test --batch=100 --rate=500
 ```
 
 
