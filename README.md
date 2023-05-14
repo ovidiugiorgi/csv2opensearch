@@ -9,7 +9,7 @@ The tool automatically creates all document _keys_ based on the file headers. Al
 ## Install
 
 ```
-go install github.com/ovidiugiorgi/csv2opensearch@latest
+go install github.com/ovidiugiorgi/csv2opensearch/cmd/csv2opensearch@latest
 ```
 
 ## Usage
@@ -26,6 +26,7 @@ Run the import:
 ```
 csv2opensearch --file=test.csv --host=https://localhost:9200 --index=test --batch=100 --rate=500
 ```
+
 
 Run `csv2opensearch --help` for more details:
 

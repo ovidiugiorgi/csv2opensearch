@@ -60,15 +60,17 @@ func (ci *Reader) jsonify(row []string) string {
 	b.WriteString("{")
 
 	for i := range ci.headers {
-		b.WriteString(fmt.Sprintf("\"%s\":", ci.headers[i])) // Key
+		// Set the key
+		b.WriteString(fmt.Sprintf("\"%s\":", ci.headers[i]))
 
-		// Sanitize value
+		// Sanitize the value
 		v := row[i]
 		v = strings.ReplaceAll(v, "\n", "")
 		v = strings.ReplaceAll(v, "\"", "")
 		v = strings.ReplaceAll(v, "\\", "")
 
-		b.WriteString(fmt.Sprintf("\"%s\"", v)) // Property
+		// Set the value
+		b.WriteString(fmt.Sprintf("\"%s\"", v))
 
 		if i < len(ci.headers)-1 {
 			b.WriteString(",")
