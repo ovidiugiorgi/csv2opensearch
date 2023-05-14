@@ -18,6 +18,7 @@ type Writer struct {
 	user, password string
 }
 
+// WithBasicAuth sets up the credentials for basic authentication to OpenSearch.
 func WithBasicAuth(user, password string) func(*Writer) {
 	return func(w *Writer) {
 		w.user = user
@@ -25,9 +26,11 @@ func WithBasicAuth(user, password string) func(*Writer) {
 	}
 }
 
-// NewWriter creates a new connection to the provided OpenSearch cluster.
+// NewWriter creates a new connection to the OpenSearch cluster.
+//
 // It accepts a list of options used to further configure the client, e.g. setting the username and password.
 // See https://dave.cheney.net/2014/10/17/functional-options-for-friendly-apis.
+//
 // Note: It does NOT work for TLS enabled clusters.
 func NewWriter(host string, index string, options ...func(*Writer)) (*Writer, error) {
 	w := Writer{host: host, index: index}
@@ -53,7 +56,8 @@ func NewWriter(host string, index string, options ...func(*Writer)) (*Writer, er
 	return &w, nil
 }
 
-// Write issues a Bulk request using the "_index" action type for each provided document.
+// Write issues a Bulk request using the `_index` action type for each document.
+//
 // See https://opensearch.org/docs/1.2/opensearch/rest-api/document-apis/bulk/.
 func (w *Writer) Write(_ context.Context, docs []string) error {
 	req, err := buildBulkRequest(w.index, docs)

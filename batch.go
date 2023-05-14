@@ -25,7 +25,7 @@ type BatchProcessor struct {
 	sink   Sink
 }
 
-// NewBatchProcessor creates a processor that ships batch of records from the source to the sink.
+// NewBatchProcessor creates a processor that ships batches of records from source to sink.
 func NewBatchProcessor(size int, source Source, sink Sink) *BatchProcessor {
 	return &BatchProcessor{
 		size:   size,
@@ -34,7 +34,7 @@ func NewBatchProcessor(size int, source Source, sink Sink) *BatchProcessor {
 	}
 }
 
-// Run the import. The method will automatically exit once the provided context is cancelled.
+// Run the import. The method will automatically exit once the context is cancelled.
 func (bw *BatchProcessor) Run(ctx context.Context) {
 	records := make([]string, 0, bw.size)
 	var i, batches int

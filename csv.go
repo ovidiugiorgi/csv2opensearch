@@ -9,13 +9,13 @@ import (
 	"strings"
 )
 
-// Reader reads the provided CSV and returns JSON stringified versions for each record.
+// Reader reads the CSV and returns JSON stringified versions for each record.
 type Reader struct {
 	reader  *csv.Reader
 	headers []string
 }
 
-// NewReader returns a new CSV reader pointing to the provided path.
+// NewReader returns a new CSV reader pointing to the file path.
 func NewReader(path string) (*Reader, error) {
 	f, err := os.Open(path)
 	if err != nil {
