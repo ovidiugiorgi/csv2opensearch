@@ -27,8 +27,9 @@ Run the import:
 csv2opensearch --csv=test.csv --host=https://localhost:9200 --index=test --batch=100 --rate=500
 ```
 
+### Options
 
-Run `csv2opensearch --help` for more details:
+Run `csv2opensearch --help` for the full list of options:
 
 ```
 ➜  ~ csv2opensearch --help
@@ -43,6 +44,14 @@ Usage of csv2opensearch:
         Name for OpenSearch index where the data will end up. OpenSearch will automatically create the field mappings.
   -rate int
         Rate limit for number of records that are indexed per second (default -1)
+```
+
+## Library
+
+The `csv2opensearch` package exposes types that can be embedded into other applications. See the [Go documentation](https://pkg.go.dev/github.com/ovidiugiorgi/csv2opensearch) for more details.
+
+```
+go get github.com/ovidiugiorgi/csv2opensearch@latest
 ```
 
 ## Docker
