@@ -22,7 +22,7 @@ func main() {
 		csv = flag.String(
 			"csv",
 			"",
-			"Path to the CSV file",
+			"Optional. Path to the CSV file. If missing, the data is read from stdin.",
 		)
 		host = flag.String("host",
 			"https://localhost:9200",
@@ -30,9 +30,9 @@ func main() {
 		)
 		index = flag.String("index",
 			"",
-			`Name of the OpenSearch index where the data will end up. If not provided, data will be
-			written to an index based on the CSV file name and current timestamp.
-			OpenSearch will automatically create the field mappings.`,
+			"Optional. Name of the OpenSearch index where the data will end up. "+
+				"If not provided, data will be written to an index based on the CSV file name and current timestamp. "+
+				" OpenSearch will automatically create the field mappings.",
 		)
 		batch = flag.Int("batch",
 			100,
@@ -40,13 +40,15 @@ func main() {
 		)
 		rate = flag.Int("rate",
 			-1,
-			"Rate limit for number of records that are indexed per second",
+			"Throttle the number of records that are indexed per second. By default, the ingestion is unthrottled.",
 		)
 	)
 	flag.Parse()
 
-	if *csv == "" {
-		log.Fatalf("Missing `csv` flag")
+	if *csv == "" && *index == "" {
+		log.Printf("Index name is required when data is read from stdin.")
+		flag.Usage()
+		os.Exit(1)
 	}
 
 	if err := run(ctx, config{

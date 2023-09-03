@@ -15,9 +15,15 @@ import (
 
 func run(ctx context.Context, cfg config) error {
 	// Setup reader
-	f, err := os.Open(cfg.csv)
-	if err != nil {
-		return fmt.Errorf("failed to open CSV file: %v", err)
+	var f *os.File
+	if cfg.csv != "" {
+		cf, err := os.Open(cfg.csv)
+		if err != nil {
+			return fmt.Errorf("failed to open CSV file: %v", err)
+		}
+		f = cf
+	} else {
+		f = os.Stdin
 	}
 	cr := csv.NewReader(f)
 	cr.LazyQuotes = true

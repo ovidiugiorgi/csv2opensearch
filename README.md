@@ -2,7 +2,11 @@
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/ovidiugiorgi/csv2opensearch.svg)](https://pkg.go.dev/github.com/ovidiugiorgi/csv2opensearch)
 
-Import CSV files into OpenSearch without needing to pre-configure the data schema. Useful for data exploration or indexing realistic data for load testing the cluster.
+Import CSV files into OpenSearch without needing to pre-configure the index mappings.
+
+Use cases:
+- data exploration
+- load testing
 
 Features & limitations:
 - each CSV record is imported as a separate document
@@ -28,8 +32,14 @@ export OS_PASSWORD=admin
 
 ### Run the import
 
+Read from file:
 ```
-csv2opensearch --csv=test.csv --index=test --host=https://localhost:9200 
+csv2opensearch --csv=test.csv 
+```
+
+Read from stdin:
+```
+cat test.csv | csv2opensearch --index=test
 ```
 
 ### Options
@@ -38,17 +48,17 @@ Run `csv2opensearch --help` for the full list of options:
 
 ```
 ➜  ~ csv2opensearch --help
-Usage of csv2opensearch:
+Usage of ./csv2opensearch:
   -batch int
         Number of records that will be indexed in a single Bulk API request (default 100)
   -csv string
-        Path to the CSV file
+        Optional. Path to the CSV file. If missing, the data is read from stdin.
   -host string
         URL of the OpenSearch cluster (default "https://localhost:9200")
   -index string
-        Name for OpenSearch index where the data will end up. OpenSearch will automatically create the field mappings.
+        Optional. Name of the OpenSearch index where the data will end up. If not provided, data will be written to an index based on the CSV file name and current timestamp.  OpenSearch will automatically create the field mappings.
   -rate int
-        Rate limit for number of records that are indexed per second (default -1)
+        Throttle the number of records that are indexed per second. By default, the ingestion is unthrottled. (default -1)
 ```
 
 ## Library
