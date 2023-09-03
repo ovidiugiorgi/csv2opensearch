@@ -4,7 +4,10 @@
 
 Import CSV files into OpenSearch without needing to pre-configure the data schema. Useful for data exploration or indexing realistic data for load testing the cluster.
 
-The tool automatically creates all document _keys_ based on the file headers. All _values_ are treated as strings.
+Features & limitations:
+- each CSV record is imported as a separate document
+- document _properties_ are inferred from the CSV header (first record)
+- document _values_ are imported as raw strings
 
 ## Install
 
@@ -14,6 +17,8 @@ go install github.com/ovidiugiorgi/csv2opensearch/cmd/csv2opensearch@latest
 
 ## Usage
 
+### Auth (optional)
+
 Add `OS_USER` and `OS_PASSWORD` to the environment when the cluster is using basic authentication.
 
 ```
@@ -21,10 +26,10 @@ export OS_USER=admin
 export OS_PASSWORD=admin
 ```
 
-Run the import:
+### Run the import
 
 ```
-csv2opensearch --csv=test.csv --host=https://localhost:9200 --index=test --batch=100 --rate=500
+csv2opensearch --csv=test.csv --index=test --host=https://localhost:9200 
 ```
 
 ### Options
@@ -58,14 +63,20 @@ go get github.com/ovidiugiorgi/csv2opensearch@latest
 
 You can use the `docker-compose.yaml` file to quickly spin up a local (single node) OpenSearch cluster and Dashboards application (FKA Kibana).
 
-Start:
+URLs:
+- OpenSearch: localhost:9200
+- Dashboards: localhost:5601
+
+### Start
+
 ```
 docker-compose up -d
 ```
 
-Note: By default, the cluster will require basic authentication using the `admin/admin` credentials.
+> Note: By default, the cluster will require basic authentication using the `admin/admin` credentials.
 
-Stop:
+### Stop
+
 ```
 docker-compose down
 ```

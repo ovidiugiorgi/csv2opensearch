@@ -5,7 +5,6 @@ import (
 	"encoding/csv"
 	"errors"
 	"fmt"
-	"os"
 	"strings"
 )
 
@@ -15,33 +14,25 @@ type Reader struct {
 	headers []string
 }
 
-// NewReader returns a new CSV reader pointing to the file path.
-func NewReader(path string) (*Reader, error) {
-	f, err := os.Open(path)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open CSV: %v", err)
-	}
-
-	r := csv.NewReader(f)
-	r.LazyQuotes = true
-
-	return &Reader{reader: r}, nil
+// NewReader returns a new Reader that maps CSV records to JSONs.
+func NewReader(reader *csv.Reader) *Reader {
+	return &Reader{reader: reader}
 }
 
 // Read returns a JSON serialized record from the CSV file and then advances the offset.
-func (ci *Reader) Read(_ context.Context) (string, error) {
-	if len(ci.headers) == 0 { // lazy load headers
-		h, err := ci.reader.Read()
+func (r *Reader) Read(_ context.Context) (string, error) {
+	if len(r.headers) == 0 { // lazy load headers
+		h, err := r.reader.Read()
 		if err != nil {
 			return "", fmt.Errorf("failed to read CSV headers: %v", err)
 		}
 		if len(h) == 0 {
 			return "", errors.New("missing headers")
 		}
-		ci.headers = h
+		r.headers = h
 	}
 
-	row, err := ci.reader.Read()
+	row, err := r.reader.Read()
 	if err != nil {
 		return "", fmt.Errorf("failed to read row: %w", err)
 	}
@@ -50,18 +41,18 @@ func (ci *Reader) Read(_ context.Context) (string, error) {
 		return "", nil
 	}
 
-	rs := ci.jsonify(row)
+	rs := r.jsonify(row)
 
 	return rs, nil
 }
 
-func (ci *Reader) jsonify(row []string) string {
+func (r *Reader) jsonify(row []string) string {
 	b := strings.Builder{}
 	b.WriteString("{")
 
-	for i := range ci.headers {
+	for i := range r.headers {
 		// Set the key
-		b.WriteString(fmt.Sprintf("\"%s\":", ci.headers[i]))
+		b.WriteString(fmt.Sprintf("\"%s\":", r.headers[i]))
 
 		// Sanitize the value
 		v := row[i]
@@ -72,7 +63,7 @@ func (ci *Reader) jsonify(row []string) string {
 		// Set the value
 		b.WriteString(fmt.Sprintf("\"%s\"", v))
 
-		if i < len(ci.headers)-1 {
+		if i < len(r.headers)-1 {
 			b.WriteString(",")
 		}
 	}

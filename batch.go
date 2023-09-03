@@ -35,57 +35,57 @@ func NewBatchProcessor(size int, source Source, sink Sink) *BatchProcessor {
 }
 
 // Run the import. The method will automatically exit once the context is cancelled.
-func (bw *BatchProcessor) Run(ctx context.Context) {
-	records := make([]string, 0, bw.size)
-	var i, batches int
+func (bp *BatchProcessor) Run(ctx context.Context) {
+	records := make([]string, 0, bp.size)
+	var off, batchNum int
 
 	for {
 		select {
 		case <-ctx.Done():
-			log.Printf("context is cancelled, flushing in progress batch of %d records\n", len(records))
+			log.Printf("Context is cancelled, flushing partial batch of %d records\n", len(records))
 
-			err := bw.sink.Write(ctx, records)
+			err := bp.sink.Write(ctx, records)
 			if err != nil {
-				log.Fatalf("failed to flush in progress batch: %v", err)
+				log.Fatalf("Failed to flush partial batch: %v", err)
 				return
 			}
 			return
 		default:
-			if i == bw.size {
-				batches++
-				log.Printf("flushing full batch: %d\n", batches)
+			if off == bp.size {
+				batchNum++
+				log.Printf("Flushing batch #%d with %d records\n", batchNum, len(records))
 
-				err := bw.sink.Write(ctx, records)
+				err := bp.sink.Write(ctx, records)
 				if err != nil {
-					log.Fatalf("failed to flush full batch %d: %v", batches, err)
+					log.Fatalf("Failed to flush batch #%d: %v", batchNum, err)
 					return
 				}
 
-				// reset state
-				records = make([]string, 0, bw.size)
-				i = 0
+				// Reset batch
+				records = make([]string, 0, bp.size)
+				off = 0
 			}
 
-			r, err := bw.source.Read(ctx)
+			r, err := bp.source.Read(ctx)
 			if err != nil {
 				if errors.Is(err, io.EOF) {
-					batches++
-					log.Printf("flushing final batch of %d records\n", len(records))
+					batchNum++
+					log.Printf("Flushing final batch with %d records\n", len(records))
 
-					err = bw.sink.Write(ctx, records)
+					err = bp.sink.Write(ctx, records)
 					if err != nil {
-						log.Fatalf("failed to flush final batch: %v", err)
+						log.Fatalf("Failed to flush final batch: %v", err)
 						return
 					}
 					return
 				}
 
-				log.Fatalf("failed to read records: %v", err)
+				log.Fatalf("Failed to read records: %v", err)
 				return
 			}
 
 			records = append(records, r)
-			i++
+			off++
 		}
 	}
 }

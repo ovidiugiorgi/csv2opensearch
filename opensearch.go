@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 
@@ -52,6 +53,8 @@ func NewWriter(host string, index string, options ...func(*Writer)) (*Writer, er
 		return nil, fmt.Errorf("failed to initialize OpenSearch client: %v", err)
 	}
 	w.client = client
+
+	log.Printf("Writing data to index %q", index)
 
 	return &w, nil
 }

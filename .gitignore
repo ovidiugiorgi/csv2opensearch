@@ -19,3 +19,6 @@
 
 # Go workspace file
 go.work
+
+# CMD
+cmd/csv2opensearch/csv2opensearch
