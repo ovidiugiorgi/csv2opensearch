@@ -82,6 +82,7 @@ Generator:
 
 - Run tests with: `go test ./...`
 - In restricted/sandbox environments, use: `GOCACHE=/tmp/go-build go test ./...`
+- In restricted/sandbox environments, local runtime checks against `localhost` (for example `make status`, `make query`, direct `curl` to `http://localhost:9200`) may fail even when the host stack is healthy; if needed, rerun outside sandbox restrictions.
 - For bug fixes/regressions, start with a failing test before changing runtime logic.
 - Prefer integration-style tests (mock OpenSearch) for shipping-path behavior.
 - Prefer package-external tests (`csv2opensearch_test`) to validate public behavior.
