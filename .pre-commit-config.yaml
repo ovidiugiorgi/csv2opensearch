@@ -23,6 +23,13 @@ repos:
         pass_filenames: false
         stages: [pre-push]
 
+      - id: go-test
+        name: go test
+        entry: go test ./...
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
+
       - id: go-fix-diff
         name: go fix modernizers
         entry: bash -lc
