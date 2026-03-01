@@ -27,6 +27,12 @@ repos:
         language: system
         types: [shell]
 
+      - id: prettier-markdown
+        name: prettier (markdown)
+        entry: prettier --write
+        language: system
+        types: [markdown]
+
       - id: go-vet
         name: go vet
         entry: go vet ./...

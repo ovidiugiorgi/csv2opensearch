@@ -6,10 +6,12 @@
 Import CSV files into OpenSearch without needing to pre-configure the index mappings.
 
 Use cases:
+
 - data exploration
 - load testing
 
 Features & limitations:
+
 - each CSV record is imported as a separate document
 - document _properties_ are inferred from the CSV header (first record)
 - document _values_ are imported as raw strings
@@ -48,11 +50,13 @@ export OS_PASSWORD=your_password
 ### Run the import
 
 Read from file:
+
 ```
 csv2opensearch --csv=test.csv --host=http://localhost:9200
 ```
 
 Read from stdin:
+
 ```
 cat test.csv | csv2opensearch --index=test
 ```
@@ -168,12 +172,14 @@ go get github.com/ovidiugiorgi/csv2opensearch@latest
 You can use the `compose.yaml` file to quickly spin up a local (single node) OpenSearch cluster and Dashboards application (FKA Kibana).
 
 URLs:
+
 - OpenSearch: localhost:9200
 - Dashboards: localhost:5601
 
 ### Start
 
 Preferred:
+
 ```bash
 make up
 ```
@@ -213,10 +219,11 @@ Install `pre-commit` and register hooks:
 pre-commit install --hook-type pre-commit --hook-type pre-push
 ```
 
-Install `goimports` if missing:
+Install `goimports` and `prettier` if missing:
 
 ```bash
 go install golang.org/x/tools/cmd/goimports@latest
+npm install --global prettier
 ```
 
 Run all hooks once:
@@ -226,5 +233,6 @@ pre-commit run --all-files
 ```
 
 Configured hooks:
-- pre-commit: `check-yaml`, `gofmt`, `goimports`, `shellcheck`
+
+- pre-commit: `check-yaml`, `gofmt`, `goimports`, `shellcheck`, `prettier` (Markdown)
 - pre-push: `go test ./...`, `go vet ./...`
