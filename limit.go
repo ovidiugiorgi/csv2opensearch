@@ -19,6 +19,13 @@ func NewRateLimiter(r rate.Limit, burst int, sink Sink) *RateLimiter {
 
 // Write throttles writes to the sink based on the current rate.
 func (rl *RateLimiter) Write(ctx context.Context, v []string) error {
-	rl.limiter.WaitN(ctx, len(v))
+	if len(v) == 0 {
+		return nil
+	}
+
+	if err := rl.limiter.WaitN(ctx, len(v)); err != nil {
+		return err
+	}
+
 	return rl.sink.Write(ctx, v)
 }

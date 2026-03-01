@@ -47,7 +47,7 @@ Important defaults:
 
 - `HOST=http://localhost:9200`
 - `INDEX=used-cars-demo` (used by `make query`)
-- `DEV_INDEX=used-cars-smoke` (used by `make dev`)
+- `DEV_INDEX=used-cars-demo` (used by `make dev`)
 - `SEED_INDEX=used-cars-demo`
 - `QUERY_SIZE=3`
 
@@ -55,13 +55,16 @@ Important defaults:
 
 Committed datasets:
 
-- `testdata/used_cars_smoke.csv` (30 rows)
 - `testdata/used_cars_demo.csv` (1000 rows)
+- `testdata/used_cars_integration_exact_20.csv` (20 rows)
+- `testdata/used_cars_integration_partial_23.csv` (23 rows)
 
 Generator:
 
 - `scripts/gen_used_cars_dataset.py` (deterministic via seed)
 - Exposed through `make data`
+- If new datasets are needed, generate deterministic CSVs and commit them under `testdata/`.
+- Prefer dedicated integration fixtures over ad-hoc inline data when behavior depends on row counts or batch boundaries.
 
 ## Documentation/UX Rules
 
@@ -70,13 +73,22 @@ Generator:
   - `make seed`
   - `make query`
 - If Make defaults change, update README examples in the same change.
+- If Make defaults or datasets change, update README and this file in the same change.
 - Keep error hints actionable (for example: suggest `make up`, `make status`, `make seed`).
 - Do not recommend `down -v` as default cleanup; recommend `make down`.
+- Remove obsolete references/files when replacing defaults.
 
 ## Testing
 
 - Run tests with: `go test ./...`
 - In restricted/sandbox environments, use: `GOCACHE=/tmp/go-build go test ./...`
+- For bug fixes/regressions, start with a failing test before changing runtime logic.
+- Prefer integration-style tests (mock OpenSearch) for shipping-path behavior.
+- Prefer package-external tests (`csv2opensearch_test`) to validate public behavior.
+- Follow a red/green loop:
+  1. Add/adjust test and confirm it fails for the expected reason.
+  2. Implement the smallest fix.
+  3. Run full suite (`go test ./...`) before concluding.
 
 ## When Changing Runtime Behavior
 
@@ -85,3 +97,5 @@ If modifying any of these, call out compatibility impact in commit/PR notes:
 - CLI default `--host`
 - Compose security mode (HTTP/no-auth vs HTTPS/auth)
 - Default Make index variables (`INDEX`, `SEED_INDEX`, `DEV_INDEX`)
+- Keep changes small and auditable: guard at boundaries (for example, batch size validation and empty-batch no-ops).
+- Add regression tests in the same change when runtime behavior is modified.

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"testing"
@@ -47,4 +48,40 @@ func TestConfigIndexName(t *testing.T) {
 			})
 		}
 	})
+}
+
+func TestRun_FailsWhenCSVPathDoesNotExist(t *testing.T) {
+	err := run(context.Background(), config{
+		csv:   "/definitely/missing/file.csv",
+		batch: 100,
+	})
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+	if !strings.Contains(err.Error(), "failed to open CSV file") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+func TestRun_FailsWhenBatchIsNotPositive(t *testing.T) {
+	err := run(context.Background(), config{
+		csv:   "/definitely/missing/file.csv",
+		batch: 0,
+	})
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+	if !strings.Contains(err.Error(), "invalid batch size") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+func TestValidateConfig_RejectsNegativeBatch(t *testing.T) {
+	err := validateConfig(config{batch: -1})
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+	if !strings.Contains(err.Error(), "invalid batch size") {
+		t.Fatalf("unexpected error: %v", err)
+	}
 }

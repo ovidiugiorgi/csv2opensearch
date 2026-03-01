@@ -51,7 +51,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := run(ctx, config{
+	cfg := config{
 		csv:      *csv,
 		host:     *host,
 		user:     os.Getenv("OS_USER"),
@@ -59,7 +59,14 @@ func main() {
 		index:    *index,
 		batch:    *batch,
 		rate:     *rate,
-	}); err != nil {
+	}
+	if err := validateConfig(cfg); err != nil {
+		log.Println(err)
+		flag.Usage()
+		os.Exit(1)
+	}
+
+	if err := run(ctx, cfg); err != nil {
 		log.Fatal(err)
 	}
 }

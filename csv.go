@@ -52,7 +52,7 @@ func (r *Reader) jsonify(row []string) string {
 
 	for i := range r.headers {
 		// Set the key
-		b.WriteString(fmt.Sprintf("\"%s\":", r.headers[i]))
+		fmt.Fprintf(&b, "\"%s\":", r.headers[i])
 
 		// Sanitize the value
 		v := row[i]
@@ -61,7 +61,7 @@ func (r *Reader) jsonify(row []string) string {
 		v = strings.ReplaceAll(v, "\\", "")
 
 		// Set the value
-		b.WriteString(fmt.Sprintf("\"%s\"", v))
+		fmt.Fprintf(&b, "\"%s\"", v)
 
 		if i < len(r.headers)-1 {
 			b.WriteString(",")

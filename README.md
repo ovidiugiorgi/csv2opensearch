@@ -1,6 +1,7 @@
 # csv2opensearch
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/ovidiugiorgi/csv2opensearch.svg)](https://pkg.go.dev/github.com/ovidiugiorgi/csv2opensearch)
+[![CI](https://github.com/ovidiugiorgi/csv2opensearch/actions/workflows/ci.yml/badge.svg)](https://github.com/ovidiugiorgi/csv2opensearch/actions/workflows/ci.yml)
 
 Import CSV files into OpenSearch without needing to pre-configure the index mappings.
 
@@ -18,6 +19,30 @@ Features & limitations:
 ```
 go install github.com/ovidiugiorgi/csv2opensearch/cmd/csv2opensearch@latest
 ```
+
+## Developer Hooks (pre-commit)
+
+Install `pre-commit` and register hooks:
+
+```bash
+pre-commit install --hook-type pre-commit --hook-type pre-push
+```
+
+Install `goimports` if missing:
+
+```bash
+go install golang.org/x/tools/cmd/goimports@latest
+```
+
+Run all hooks once:
+
+```bash
+pre-commit run --all-files
+```
+
+Configured hooks:
+- pre-commit: `gofmt`, `goimports`
+- pre-push: `go vet ./...`, `go fix -diff ./...` (fails if modernization changes are suggested)
 
 ## Quickstart
 
@@ -58,13 +83,12 @@ cat test.csv | csv2opensearch --index=test
 
 This repository includes a synthetic used-cars marketplace dataset:
 
-- `testdata/used_cars_smoke.csv` (30 records) for quick smoke tests
-- `testdata/used_cars_demo.csv` (1000 records) for larger demos
+- `testdata/used_cars_demo.csv` (1000 records)
 
 Example import:
 
 ```bash
-csv2opensearch --csv=testdata/used_cars_smoke.csv --index=used-cars-smoke --host=http://localhost:9200
+csv2opensearch --csv=testdata/used_cars_demo.csv --index=used-cars-demo --host=http://localhost:9200
 ```
 
 Local dev import (uses local source code and HTTP host):
@@ -115,7 +139,6 @@ curl -s -X POST "http://localhost:9200/used-cars-demo/_search?pretty" \
 Regenerate datasets (deterministic):
 
 ```bash
-/usr/bin/python3 scripts/gen_used_cars_dataset.py --rows 30 --seed 7 --out testdata/used_cars_smoke.csv
 /usr/bin/python3 scripts/gen_used_cars_dataset.py --rows 1000 --seed 42 --out testdata/used_cars_demo.csv
 ```
 
@@ -123,7 +146,7 @@ Or use Make:
 
 ```bash
 make data
-make data DATA_ROWS=1000 DATA_SEED=42 DATA_OUT=testdata/used_cars_demo.csv
+make data DATA_ROWS=200 DATA_SEED=7 DATA_OUT=testdata/custom.csv
 ```
 
 Use a different generator script:

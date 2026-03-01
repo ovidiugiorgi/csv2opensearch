@@ -13,7 +13,18 @@ import (
 	"golang.org/x/time/rate"
 )
 
+func validateConfig(cfg config) error {
+	if cfg.batch <= 0 {
+		return fmt.Errorf("invalid batch size %d: must be greater than 0", cfg.batch)
+	}
+	return nil
+}
+
 func run(ctx context.Context, cfg config) error {
+	if err := validateConfig(cfg); err != nil {
+		return err
+	}
+
 	// Setup reader
 	var f *os.File
 	if cfg.csv != "" {

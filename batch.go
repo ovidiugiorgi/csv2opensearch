@@ -42,6 +42,10 @@ func (bp *BatchProcessor) Run(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
+			if len(records) == 0 {
+				return
+			}
+
 			log.Printf("Context is cancelled, flushing partial batch of %d records\n", len(records))
 
 			err := bp.sink.Write(ctx, records)
@@ -69,6 +73,10 @@ func (bp *BatchProcessor) Run(ctx context.Context) {
 			r, err := bp.source.Read(ctx)
 			if err != nil {
 				if errors.Is(err, io.EOF) {
+					if len(records) == 0 {
+						return
+					}
+
 					batchNum++
 					log.Printf("Flushing final batch with %d records\n", len(records))
 

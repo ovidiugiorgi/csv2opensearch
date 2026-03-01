@@ -63,9 +63,12 @@ func NewWriter(host string, index string, options ...func(*Writer)) (*Writer, er
 //
 // See https://opensearch.org/docs/1.2/opensearch/rest-api/document-apis/bulk/.
 func (w *Writer) Write(_ context.Context, docs []string) error {
-	req, err := buildBulkRequest(w.index, docs)
+	req, actions, err := buildBulkRequest(w.index, docs)
 	if err != nil {
 		return fmt.Errorf("failed to build bulk request: %v", err)
+	}
+	if actions == 0 {
+		return nil
 	}
 
 	res, err := w.client.Bulk(strings.NewReader(req))
@@ -80,16 +83,24 @@ func (w *Writer) Write(_ context.Context, docs []string) error {
 	return nil
 }
 
-func buildBulkRequest(index string, docs []string) (string, error) {
+func buildBulkRequest(index string, docs []string) (string, int, error) {
 	b := strings.Builder{}
+	actions := 0
+
 	for i := range docs {
-		if docs[i] == "" { // skip empty rows
+		if strings.TrimSpace(docs[i]) == "" { // skip empty rows
 			continue
 		}
-		b.WriteString(fmt.Sprintf("{\"index\": {\"_index\": \"%s\"}}\n", index))
+		fmt.Fprintf(&b, "{\"index\": {\"_index\": \"%s\"}}\n", index)
 		b.WriteString(docs[i])
 		b.WriteString("\n")
+		actions++
 	}
+
+	if actions == 0 {
+		return "", 0, nil
+	}
+
 	b.WriteString("\n")
-	return b.String(), nil
+	return b.String(), actions, nil
 }
