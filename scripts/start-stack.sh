@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 set -eu
 
-ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+ROOT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
 COMPOSE_FILE=${COMPOSE_FILE:-"$ROOT_DIR/compose.yaml"}
 TIMEOUT_SECONDS=${TIMEOUT_SECONDS:-180}
 POLL_INTERVAL_SECONDS=${POLL_INTERVAL_SECONDS:-2}
