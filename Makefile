@@ -11,6 +11,8 @@ SEED_CSV ?= testdata/used_cars_demo.csv
 SEED_INDEX ?= used-cars-demo
 Q ?= Bucharest
 QUERY_SIZE ?= 3
+N ?=
+QUERY_N = $(or $(strip $(N)),$(QUERY_SIZE))
 PYTHON ?= /usr/bin/python3
 DATA_GEN_SCRIPT ?= scripts/gen_used_cars_dataset.py
 DATA_ROWS ?= 1000
@@ -36,7 +38,7 @@ help:
 	@echo "  make seed       - Ingest demo dataset with installed csv2opensearch CLI"
 	@echo "  make seed-dev   - Ingest demo dataset with local go run"
 	@echo "  make indexes    - List non-system indexes with docs and size"
-	@echo "  make query      - Run a basic free-text search (Q=...) on INDEX"
+	@echo "  make query      - Run a basic free-text search (Q=..., N=...) on INDEX"
 	@echo "  make data       - Generate CSV data via script (override DATA_GEN_SCRIPT/DATA_ARGS)"
 	@echo "  make test       - Run all Go tests"
 
@@ -82,41 +84,15 @@ seed-dev:
 	@go run ./cmd/csv2opensearch --host=$(HOST) --csv=$(SEED_CSV) --index=$(SEED_INDEX)
 
 indexes:
-	@curl -sS -o /dev/null "$(HOST)" >/dev/null 2>&1 || { \
-		echo "error: unable to reach OpenSearch at $(HOST)" >&2; \
-		echo "hint: cluster may be down; run 'make up' and then 'make status'." >&2; \
-		exit 1; \
-	}
-	@echo "index docs.count store.size status"
-	@curl -sS --fail-with-body "$(HOST)/_cat/indices?h=index,docs.count,store.size,status&s=index" | /usr/bin/grep -E -v '^\.' || true
+	@./scripts/indexes.sh --host="$(HOST)"
 
 query:
-	@echo "OpenSearch Dev Tools query:"
-	@echo "POST /$(INDEX)/_search"
-	@echo "{"
-	@echo "  \"size\": $(QUERY_SIZE),"
-	@echo "  \"query\": {"
-	@echo "    \"query_string\": {"
-	@echo "      \"query\": \"$(Q)\""
-	@echo "    }"
-	@echo "  }"
-	@echo "}"
-	@echo
-	@curl -sS -o /dev/null "$(HOST)" >/dev/null 2>&1 || { \
-		echo "error: unable to reach OpenSearch at $(HOST)" >&2; \
-		echo "hint: cluster may be down; run 'make up' and then 'make status'." >&2; \
-		exit 1; \
-	}
-	@curl -sS --fail-with-body -X POST "$(HOST)/$(INDEX)/_search?pretty" \
-		-H "Content-Type: application/json" \
-		-d '{"query":{"query_string":{"query":"$(Q)"}},"size":$(QUERY_SIZE)}' || { \
-		code=$$?; \
-		echo; \
-		echo "error: search request failed (curl exit $$code)." >&2; \
-		echo "hint: current query index is '$(INDEX)'." >&2; \
-		echo "hint: run 'make seed' to populate the demo index, or query another one with e.g. make query INDEX=$(DEV_INDEX)" >&2; \
-		exit $$code; \
-	}
+	@./scripts/query.sh \
+		--host="$(HOST)" \
+		--index="$(INDEX)" \
+		--query="$(Q)" \
+		--size="$(QUERY_N)" \
+		--dev-index="$(DEV_INDEX)"
 
 data:
 	@$(PYTHON) $(DATA_GEN_SCRIPT) $(DATA_ARGS)

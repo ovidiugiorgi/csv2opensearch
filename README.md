@@ -20,30 +20,6 @@ Features & limitations:
 go install github.com/ovidiugiorgi/csv2opensearch/cmd/csv2opensearch@latest
 ```
 
-## Developer Hooks (pre-commit)
-
-Install `pre-commit` and register hooks:
-
-```bash
-pre-commit install --hook-type pre-commit --hook-type pre-push
-```
-
-Install `goimports` if missing:
-
-```bash
-go install golang.org/x/tools/cmd/goimports@latest
-```
-
-Run all hooks once:
-
-```bash
-pre-commit run --all-files
-```
-
-Configured hooks:
-- pre-commit: `check-yaml`, `gofmt`, `goimports`, `shellcheck`
-- pre-push: `go test ./...`, `go vet ./...`
-
 ## Quickstart
 
 ```bash
@@ -51,6 +27,8 @@ make up
 make seed
 make query
 ```
+
+By default, `make seed` ingests `testdata/used_cars_demo.csv` (1000 records) into the `used-cars-demo` index.
 
 If you have not installed the `csv2opensearch` binary yet, use `make seed-dev` instead of `make seed`.
 
@@ -85,6 +63,8 @@ This repository includes a synthetic used-cars marketplace dataset:
 
 - `testdata/used_cars_demo.csv` (1000 records)
 
+This dataset was synthetically generated using `scripts/gen_used_cars_dataset.py` and represents used-car marketplace listings for demo and testing workflows.
+
 Example import:
 
 ```bash
@@ -112,6 +92,7 @@ Basic free-text query on the demo index:
 
 ```bash
 make query
+make query N=10
 ```
 
 List ingested indexes:
@@ -124,7 +105,7 @@ Override Make variables (for remote or secured clusters):
 
 ```bash
 make indexes HOST=http://127.0.0.1:9200
-make query HOST=https://my-secure-os:9200 INDEX=used-cars-demo Q="toyota"
+make query HOST=https://my-secure-os:9200 INDEX=used-cars-demo Q="toyota" N=5
 make seed HOST=https://my-secure-os:9200 SEED_CSV=testdata/used_cars_demo.csv SEED_INDEX=used-cars-demo
 ```
 
@@ -223,3 +204,27 @@ make down
 
 > Avoid `docker compose down -v` for normal workflows. The `-v` flag deletes the OpenSearch data volume and all indexed data.
 > If you explicitly want a full reset, use `make delete-data`.
+
+## Developer Hooks (pre-commit)
+
+Install `pre-commit` and register hooks:
+
+```bash
+pre-commit install --hook-type pre-commit --hook-type pre-push
+```
+
+Install `goimports` if missing:
+
+```bash
+go install golang.org/x/tools/cmd/goimports@latest
+```
+
+Run all hooks once:
+
+```bash
+pre-commit run --all-files
+```
+
+Configured hooks:
+- pre-commit: `check-yaml`, `gofmt`, `goimports`, `shellcheck`
+- pre-push: `go test ./...`, `go vet ./...`
