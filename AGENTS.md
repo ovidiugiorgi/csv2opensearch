@@ -99,3 +99,11 @@ If modifying any of these, call out compatibility impact in commit/PR notes:
 - Default Make index variables (`INDEX`, `SEED_INDEX`, `DEV_INDEX`)
 - Keep changes small and auditable: guard at boundaries (for example, batch size validation and empty-batch no-ops).
 - Add regression tests in the same change when runtime behavior is modified.
+
+## Commit Messages
+
+- Follow lowercase commit titles (match existing history style).
+- Prefer conventional prefixes such as `fix:`, `feat:`, `chore:`, `docs:`, `test:`.
+- Use `agents:` for changes to agent instructions, policies, or this `AGENTS.md` file.
+- Keep the subject concise and imperative.
+- Example: `fix: prevent empty final bulk flush`
