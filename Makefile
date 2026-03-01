@@ -20,7 +20,7 @@ DATA_ARGS ?= --rows $(DATA_ROWS) --seed $(DATA_SEED) --out $(DATA_OUT)
 
 COMPOSE := $(shell if command -v nerdctl >/dev/null 2>&1; then echo "nerdctl compose -f $(COMPOSE_FILE)"; elif command -v docker >/dev/null 2>&1; then echo "docker compose -f $(COMPOSE_FILE)"; fi)
 
-.PHONY: help up up-nowait down delete-data pull restart status logs dev seed seed-dev indexes query data
+.PHONY: help up up-nowait down delete-data pull restart status logs dev seed seed-dev indexes query data test
 
 help:
 	@echo "Targets:"
@@ -38,6 +38,7 @@ help:
 	@echo "  make indexes    - List non-system indexes with docs and size"
 	@echo "  make query      - Run a basic free-text search (Q=...) on INDEX"
 	@echo "  make data       - Generate CSV data via script (override DATA_GEN_SCRIPT/DATA_ARGS)"
+	@echo "  make test       - Run all Go tests"
 
 up:
 	@TIMEOUT_SECONDS=$(TIMEOUT_SECONDS) POLL_INTERVAL_SECONDS=$(POLL_INTERVAL_SECONDS) COMPOSE_FILE=$(COMPOSE_FILE) ./scripts/start-stack.sh
@@ -120,3 +121,6 @@ query:
 data:
 	@$(PYTHON) $(DATA_GEN_SCRIPT) $(DATA_ARGS)
 	@echo "generated: $(DATA_OUT)"
+
+test:
+	@go test ./...

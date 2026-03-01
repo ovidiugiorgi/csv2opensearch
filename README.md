@@ -41,8 +41,8 @@ pre-commit run --all-files
 ```
 
 Configured hooks:
-- pre-commit: `gofmt`, `goimports`
-- pre-push: `go test ./...`, `go vet ./...`, `go fix -diff ./...` (fails if modernization changes are suggested)
+- pre-commit: `check-yaml`, `gofmt`, `goimports`, `shellcheck`
+- pre-push: `go test ./...`, `go vet ./...`
 
 ## Quickstart
 
