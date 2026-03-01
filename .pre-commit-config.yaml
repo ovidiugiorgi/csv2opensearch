@@ -1,0 +1,44 @@
+minimum_pre_commit_version: "3.6.0"
+default_install_hook_types: [pre-commit, pre-push]
+
+repos:
+  - repo: local
+    hooks:
+      - id: gofmt
+        name: gofmt
+        entry: gofmt -w
+        language: system
+        types: [go]
+
+      - id: goimports
+        name: goimports
+        entry: goimports -w
+        language: system
+        types: [go]
+
+      - id: go-vet
+        name: go vet
+        entry: go vet ./...
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
+
+      - id: go-fix-diff
+        name: go fix modernizers
+        entry: bash -lc
+        args:
+          - |
+            out="$(go fix -diff ./... 2>&1)"
+            status=$?
+            if [ $status -ne 0 ]; then
+              echo "$out"
+              exit $status
+            fi
+            if [ -n "$out" ]; then
+              echo "$out"
+              echo "run: go fix ./..."
+              exit 1
+            fi
+        language: system
+        pass_filenames: false
+        stages: [pre-push]

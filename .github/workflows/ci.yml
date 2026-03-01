@@ -1,0 +1,84 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  go-quality:
+    name: go-quality (go ${{ matrix.go-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        go-version:
+          - "1.20.x"
+          - "1.26.x"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+          cache: true
+
+      - name: Run tests
+        run: go test ./...
+
+      - name: Run vet
+        run: go vet ./...
+
+      - name: Check formatting (gofmt)
+        if: matrix.go-version == '1.26.x'
+        shell: bash
+        run: |
+          files="$(git ls-files '*.go')"
+          if [ -z "$files" ]; then
+            exit 0
+          fi
+          unformatted="$(gofmt -l $files)"
+          if [ -n "$unformatted" ]; then
+            echo "$unformatted"
+            echo "::error title=gofmt required::Run gofmt on the files above."
+            exit 1
+          fi
+
+      - name: Check imports (goimports)
+        if: matrix.go-version == '1.26.x'
+        shell: bash
+        run: |
+          go install golang.org/x/tools/cmd/goimports@latest
+          files="$(git ls-files '*.go')"
+          if [ -z "$files" ]; then
+            exit 0
+          fi
+          unformatted="$(goimports -l $files)"
+          if [ -n "$unformatted" ]; then
+            echo "$unformatted"
+            echo "::error title=goimports required::Run goimports on the files above."
+            exit 1
+          fi
+
+      - name: Check modernization suggestions (go fix)
+        if: matrix.go-version == '1.26.x'
+        shell: bash
+        run: |
+          out="$(go fix -diff ./... 2>&1)"
+          status=$?
+          if [ $status -ne 0 ]; then
+            echo "$out"
+            exit $status
+          fi
+          if [ -n "$out" ]; then
+            echo "$out"
+            echo "::error title=go fix suggested changes::Run 'go fix ./...' and commit the result."
+            exit 1
+          fi

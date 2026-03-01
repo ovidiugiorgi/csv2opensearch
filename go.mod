@@ -1,6 +1,7 @@
 module github.com/ovidiugiorgi/csv2opensearch
 
 go 1.20
+toolchain go1.26.0
 
 require (
 	github.com/opensearch-project/opensearch-go v1.1.0
